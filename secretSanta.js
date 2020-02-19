@@ -1,9 +1,20 @@
-let nodemailer = require('nodemailer');
+/**
+ * @author William Migdol
+ * @date 12/2/2019
+ * Program that takes a list of people for a "secret santa",
+ * assigns them to a random person that isn't themselves and sends an 
+ * email to each participant on who they recieved
+ */
+
+const nodemailer = require('nodemailer');
 
 /*list the people participating in the secret santa with 
 each object containing the persons name and email*/
-let people = [
-    {"name": "sample", "email": "sample@sample.net"},
+const santas = [
+    {"name": "a", "email": "SAMPLE@gmail.net"},
+    {"name": "b", "email": "SAMPLE@gmail.net"},
+    {"name": "c", "email": "SAMPLE@gmail.net"},
+    {"name": "d", "email": "SAMPLE@gmail.net.net"},
 ];
 
 /*sets up email client to send emails to each "Santa"
@@ -12,7 +23,7 @@ let people = [
 @user the email of the sender
 @pass the password of the email of the sender
 */
-let emailClient = nodemailer.createTransport({
+const emailClient = nodemailer.createTransport({
     service: 'gmail',
     auth:{
         user: 'sample@gmail.com',
@@ -25,28 +36,14 @@ paired with the first recipient
 @santas list of santas
 @recipients list of recipients of gifts
 */
-let santas = shuffleArray(people);
-let recipients = shuffleArray(people);
-
-/*ensures nobody in the "secret santa" get paired with 
-themselves by adjusting the list of recipients if they are paired
-with themselves as a santa
-*/
-for(var i = 0; i < santas.length; i++)
+shuffleArray(santas)
+const recipients = [];
+for(var i = 1; i<santas.length;i++)
 {
-   if (santas[i] == recipients[i]) 
-   {
-       let left = i-1;
-       if(left<0)
-       {
-           left = left + santas.length;
-       }
-       let a = recipients[i];
-       let b = recipients[left];
-       recipients[i] = b;
-       recipients[left] = a;    
-   }
+    recipients.push(santas[i]);
 }
+recipients.push(santas[0]);
+
 //for each pairing, it will send the email
 for(var i = 0; i< santas.length; i++)
 {
@@ -56,32 +53,20 @@ for(var i = 0; i< santas.length; i++)
 //shuffles an array
 function shuffleArray(oldlist)
 {
-    list = clone(oldlist);
-    newList = []
-    items = list.length;
-    for(let i = 0; i<items; i++)
+    for(var i = 0; i<oldlist.length; i++)
     {
-        let spot = Math.floor(Math.random()*list.length);
-        newList.push(list[spot]);
-        list.splice(spot,1);
+        var item = oldlist[i];
+        var secondIndex = parseInt(oldlist.length*Math.random());
+        var temp = oldlist[secondIndex];
+        oldlist[secondIndex] = item;
+        oldlist[i] = temp;
     }
-    return(newList);
 }
-//clones an array
-function clone(list)
-{
-    let newlist = []
-    for(let i = 0; i<list.length; i++)
-    {
-        newlist.push(list[i]);
-    }
-    return(newlist);
 
-}
 //sends an email to each secret santa of who they will be getting a gift for
 function sendEmail(santa,giftee)
 {
-    let email = {
+    const email = {
         from: "sample email",
         to:santa["email"],
         subject: "Secret Santa",
